@@ -1,0 +1,15 @@
+---
+title: "Exploring Data"
+author: "Matt Maslow"
+format: html
+---
+
+
+
+```{r}
+library(tidyverse)
+```
+
+
+
+
