@@ -4,11 +4,50 @@ author: "Matt Maslow"
 format: html
 ---
 
-
+# Reading and Tidying the data
 
 ```{r}
 library(tidyverse)
+library(rvest)
 ```
+
+## Playing with March Madness data from 2024 tournament
+
+### Webscraping the data & Cleaning
+
+```{r}
+url <- "https://www.barttorvik.com/#"
+```
+
+```{r}
+marchMadness <- 
+  url %>%
+  read_html() %>%
+  html_nodes("table") %>%
+  html_table(trim = TRUE, header = FALSE) %>%
+  .[[1]] %>%
+  .[-1,] %>%
+  .[-27,] %>%
+  .[-52,] %>%
+  .[-77,] %>%
+  .[-102,] %>%
+  .[-127,] %>%
+  .[-152,]
+
+marchMadness
+```
+
+
+## Playing with English Premier league data from 2019/2020 season
+
+*Data files contain game half-time and full-time scores as well as detailed player/game statistics.*
+
+```{r}
+epl <- read_csv("england-premier-league-2019-to-2020.csv")
+```
+
+
+
 
 
 
