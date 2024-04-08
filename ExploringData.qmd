@@ -63,8 +63,7 @@ mm24Qualified <- read_csv("mm24_TournamentTeams.csv")
 
 ```{r}
 mm24Qualified %>%
-  separate(Team, sep = ",", into = c("Team", "Tournament_Status")) %>%
-  separate(Team, sep = str_detect(., "[:Digits:]"), into = c("Team", "Playoff_Seed"))
+  separate(Team, sep = ",", into = c("Team", "Tournament_Status"))
 ```
 
 
