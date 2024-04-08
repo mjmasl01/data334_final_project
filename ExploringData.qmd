@@ -4,64 +4,11 @@ author: "Matt Maslow"
 format: html
 ---
 
-<<<<<<< HEAD
-=======
 # Reading and Tidying the data
->>>>>>> 537bd8751f0b3c3c88be8d477cbbf48c423171e8
 
 ```{r}
 library(tidyverse)
 library(rvest)
-<<<<<<< HEAD
-library(plotly)
-```
-
-
-# Reading in the Data
-
-```{r}
-base_url = "https://coinmarketcap.com"
-
-page1 <- url %>% 
-  read_html() %>% 
-  html_nodes("table") %>%
-  html_table() %>%
-  .[[1]]
-  
-for (i in 2:96) {
-  
-  url <- paste(base_url,"/?page=", i)
-  
-  pages2to96 <- 
-    
-}
-```
-
-
-
-
-
-
-
-
-
-
-
-# Playing with the data
-
-```{r}
-plot <- 
-  ccPrices %>%
-  filter(Currency == "bitcoin") %>%
-  ggplot(aes(x = Date, y = Price)) +
-  geom_line() +
-  scale_x_continuous(labels = scales::date_format())
-
-ggplotly(plot)
-```
-```{r}
-unique(ccPrices$Currency)
-=======
 ```
 
 ## Playing with March Madness data from 2024 tournament
@@ -89,16 +36,16 @@ marchMadness <-
 
 marchMadness
 ```
-
-
-## Playing with English Premier league data from 2019/2020 season
-
-*Data files contain game half-time and full-time scores as well as detailed player/game statistics.*
+```{r}
+#write_csv(marchMadness, file = "MarchMadness24.csv")
+```
 
 ```{r}
-epl <- read_csv("england-premier-league-2019-to-2020.csv")
->>>>>>> 537bd8751f0b3c3c88be8d477cbbf48c423171e8
+mm24 <- read_csv("MarchMadness24.csv")
+
+mm24
 ```
+
 
 
 
