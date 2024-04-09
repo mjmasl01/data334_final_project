@@ -68,13 +68,79 @@ mm24Qualified <-
   rename(Games_Played = G) %>%
   mutate(Team = as.character(Team)) %>%
   separate(Team, sep = ",", into = c("Team", "Tournament_Status")) %>%
-  separate(Team, sep = "(?<=\\D)(?=\\d)", # this means that there's a non digit that is followed by a digit, in this case space before the digit
+  separate(Team, sep = "(?<=\\D)(?=\\d)",
            into = c("Team", "PlayOff_Seed")) %>%
   separate(PlayOff_Seed, sep = "\\D", into = c("PlayOff_Seed", "rand")) %>%
-  select(-rand) %>%
+  select(-rand, -Tournament_Status) %>%
   mutate(Conf = as.factor(Conf))
 mm24Qualified
 ```
+
+"(?<=\\D)(?=\\d)", this means that there's a non digit that is followed by a digit, in this case space before the digit (utilized stringR cheatsheet)
+
+
+```{r}
+library(plotly)
+library(shiny)
+```
+
+```{r}
+unique_team_vec <- unique(mm24Qualified$Team)
+unique_var_vec <- mm24Qualified %>% select(-Team, -Conf) %>% colnames()
+
+
+ui <- fluidPage(
+  sidebarLayout(
+    sidebarPanel(selectInput("Team_choice",
+                             label = "Choose a Team:",
+                 choices = unique_team_vec),
+                 selectInput("var_choice",
+                             label = "Choose a Variable to plot:",
+                             choices = unique_var_vec),
+                 ),
+    mainPanel(
+      plotOutput("major_plot"),
+      tableOutput("sex_table")
+    
+  )
+  )
+  )
+
+
+server <- function(input, output, session) {
+  
+  mm24_react <- reactive({
+    
+    mm24Filtered <- mm24Qualified %>% filtered(Team == input$Team_choice) %>% select(Team, input$var_choice)
+    
+  })
+  
+  output$Team_Plot <- renderPlot({
+    ggplot(data = mm24_react(), aes( x = input$var_choice)) +
+      geom_histogram()
+  })
+  
+  output$Team_Table <- renderTable({})
+ 
+}
+
+shinyApp(ui, server)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
