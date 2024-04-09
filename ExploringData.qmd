@@ -59,6 +59,33 @@ mm24Qualified <- mm24[str_detect(mm24$Team, pattern = "❌|✅"), ]
 mm24Qualified <- read_csv("mm24_TournamentTeams.csv")
 ```
 
+*Used chat to help me clarify what some of the columns names meant*
+
+1. **Conf**: Conference - This variable indicates the conference to which a team belongs.
+2. **Games_Played**: The number of games played by the team in the season.
+3. **AdjOE**: Adjusted Offensive Efficiency - A metric that measures a team's offensive efficiency while accounting for the strength of the opponent.
+4. **AdjDE**: Adjusted Defensive Efficiency - A metric that measures a team's defensive efficiency while accounting for the strength of the opponent.
+5. **Barthag**: A metric that estimates a team's expected winning percentage based on its adjusted offensive and defensive efficiencies.
+6. **EFG%**: Effective Field Goal Percentage - A shooting metric that adjusts for the value of a three-point field goal relative to a two-point field goal.
+7. **EFGD%**: Opponent Effective Field Goal Percentage - Similar to EFG%, but measures the opponent's shooting efficiency.
+8. **TOR**: Turnover Rate - The percentage of possessions that end in a turnover for the team.
+9. **TORD**: Opponent Turnover Rate - The percentage of possessions that end in a turnover for the opponent.
+10. **ORB**: Offensive Rebound Rate - The percentage of available offensive rebounds grabbed by the team.
+11. **DRB**: Defensive Rebound Rate - The percentage of available defensive rebounds grabbed by the team.
+12. **FTR**: Free Throw Rate - The ratio of free throw attempts to field goal attempts for the team.
+13. **FTRD**: Opponent Free Throw Rate - Similar to FTR, but for the opponent.
+14. **2P%**: Two-Point Field Goal Percentage - The percentage of two-point field goals made by the team.
+15. **2P%D**: Opponent Two-Point Field Goal Percentage - Similar to 2P%, but for the opponent.
+16. **3P%**: Three-Point Field Goal Percentage - The percentage of three-point field goals made by the team.
+17. **3P%D**: Opponent Three-Point Field Goal Percentage - Similar to 3P%, but for the opponent.
+18. **3PR**: Three-Point Attempt Rate - The percentage of field goal attempts that are three-pointers for the team.
+19. **3PRD**: Opponent Three-Point Attempt Rate - Similar to 3PR, but for the opponent.
+20. **Adj T.**: Adjusted Tempo - A metric that estimates the number of possessions per 40 minutes while adjusting for the pace of play and opponent.
+21. **WAB**: Wins Above Bubble - A metric that quantifies a team's wins relative to what a bubble team would typically achieve.
+
+
+
+
 ## cleaning data 
 
 ```{r}
@@ -72,55 +99,112 @@ mm24Qualified <-
            into = c("Team", "PlayOff_Seed")) %>%
   separate(PlayOff_Seed, sep = "\\D", into = c("PlayOff_Seed", "rand")) %>%
   select(-rand, -Tournament_Status) %>%
-  mutate(Conf = as.factor(Conf))
+  mutate(Conf = as.factor(Conf),
+         PlayOff_Seed = as.integer(PlayOff_Seed))
 mm24Qualified
 ```
 
 "(?<=\\D)(?=\\d)", this means that there's a non digit that is followed by a digit, in this case space before the digit (utilized stringR cheatsheet)
 
+# Final project
 
 ```{r}
 library(plotly)
 library(shiny)
-```
+library(reactable)
 
-```{r}
-unique_team_vec <- unique(mm24Qualified$Team)
-unique_var_vec <- mm24Qualified %>% select(-Team, -Conf) %>% colnames()
-
-
-ui <- fluidPage(
-  sidebarLayout(
-    sidebarPanel(selectInput("Teams_choice",
-                             label = "Pick Team(s):",
-                 choices = unique_team_vec, multiple = TRUE),
-                 selectInput("var_choice",
-                             label = "Choose a Variable to plot:",
-                             choices = unique_var_vec, multiple = FALSE),
-                 ),
-    mainPanel(
-      plotOutput("Team_Plot")
-        )
-    )
+ui <- navbarPage(
+  title = "March Madness 2024",
+  tabPanel("Statistics",
+             radioButtons("stat_type", 
+                 label = "Pick a Stat:",
+                 choices = c("Defensive and Opponent Stats", "Offensive Stats"),
+                 selected = "Defensive and Opponent Stats"),
+             selectizeInput("Team_choice", label = "Choose Team(s):",
+                   choices = mm24Qualified$Team, selected = "Connecicut",
+                   multiple = TRUE),
+  tableOutput("Team_Table")),
+ tabPanel("Plots",
+          radioButtons("stat_type", 
+                 label = "Pick a Stat:",
+                 choices = c("Defensive and Opponent Stats", "Offensive Stats")),
+          radioButtons("num_vars", 
+                 label = "Choose number of variables to plot:",
+                 choices = c(1, 2)),
+          selectizeInput("x_var", label = "Choose an X-variable:",
+                   choices = colnames(mm24Qualified),
+                   multiple = FALSE),
+          selectizeInput("y_var", label = "Choose a Y-variable:",
+                   choices = colnames(mm24Qualified),
+                   multiple = TRUE),
+          plotlyOutput("Team_Plot"))
+  
   )
-
+    
 
 server <- function(input, output, session) {
   
-  plot_react <- reactive({
-    mm24Filtered <- mm24Qualified %>% filter(Team %in% input$Team_choice) %>% select(Team, input$var_choice)
+  
+  mm24TableFiltered <- reactive({
+    
+   if (input$stat_type == "Defensive and Opponent Stats"){
+     
+     mm24TableFiltered <- 
+       mm24Qualified %>% 
+       filter(Team %in% input$Team_choice) %>%
+       select(Team, PlayOff_Seed, Conf, Games_Played, Barthag, AdjDE, `EFG%`, DRB, FTRD, `2P%D`, `3P%D`, `3PRD`, `Adj T.`, WAB)
+     
+   } else {
+     
+     mm24TableFiltered <- 
+       mm24Qualified %>% 
+       filter(Team %in% input$Team_choice) %>%
+       select(Team, PlayOff_Seed, Conf, Games_Played, Barthag, AdjOE, `EFGD%`, ORB, FTR, `2P%`, `3P%`, `3PR`, `Adj T.`, WAB)
+     
+   }
+    
   })
   
-  output$Team_Plot <- renderPlot({
-    ggplot(data = plot_react()) +
-      geom_histogram(aes(x = .data[[input$var_choice]], fill = Team))
-  })
- 
-
+   output$Team_Table <- renderTable({
+     mm24TableFiltered()
+   })
+   
+   observeEvent(input$num_vars, {
+     if (input$num_vars == 1){
+       updateSelectInput(session = session,"y_var", label = "Choose a Y-variable:", choices = NULL)
+     } else {
+       updateSelectInput(session = session, "y_var", label = "Choose a Y-variable:", choices = colnames(mm24Qualified))
+     }
+   })
+   
+   output$Team_plot <- renderPlotly({
+     plot_data <- mm24TableFiltered()
+     if (input$num_vars == 1){
+       plt <- ggplot(data = plot_data) +
+         geom_histogram(aes(x = .data[[input$x_var]], fill = Team, stat="identity"))
+     } else {
+       plt <- ggplot(plot_data) +
+         geom_point(aes(x = .data[[input$x_var]], y = .data[[input$y_var]], color = Team))
+     }
+     ggplotly(plt, tooltip = "text")
+   })
+   
+  
 }
 
 shinyApp(ui, server)
 ```
+
+
+plot_react <- reactive({
+    mm24Filtered <- mm24Qualified %>% filter(Team %in% input$Team_choice) %>% select(Team, input$var_choice)
+  })
+
+  output$Team_Plot <- renderPlot({
+    plt <- ggplot(data = plot_react()) +
+      geom_histogram(aes(x = .data[[input$var_choice]], fill = Team, stat="identity"))
+  })
+ ggplotly(plt)
 
 
 
