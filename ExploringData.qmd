@@ -91,37 +91,32 @@ unique_var_vec <- mm24Qualified %>% select(-Team, -Conf) %>% colnames()
 
 ui <- fluidPage(
   sidebarLayout(
-    sidebarPanel(selectInput("Team_choice",
-                             label = "Choose a Team:",
-                 choices = unique_team_vec),
+    sidebarPanel(selectInput("Teams_choice",
+                             label = "Pick Team(s):",
+                 choices = unique_team_vec, multiple = TRUE),
                  selectInput("var_choice",
                              label = "Choose a Variable to plot:",
-                             choices = unique_var_vec),
+                             choices = unique_var_vec, multiple = FALSE),
                  ),
     mainPanel(
-      plotOutput("major_plot"),
-      tableOutput("sex_table")
-    
-  )
-  )
+      plotOutput("Team_Plot")
+        )
+    )
   )
 
 
 server <- function(input, output, session) {
   
-  mm24_react <- reactive({
-    
-    mm24Filtered <- mm24Qualified %>% filtered(Team == input$Team_choice) %>% select(Team, input$var_choice)
-    
+  plot_react <- reactive({
+    mm24Filtered <- mm24Qualified %>% filter(Team %in% input$Team_choice) %>% select(Team, input$var_choice)
   })
   
   output$Team_Plot <- renderPlot({
-    ggplot(data = mm24_react(), aes( x = input$var_choice)) +
-      geom_histogram()
+    ggplot(data = plot_react()) +
+      geom_histogram(aes(x = .data[[input$var_choice]], fill = Team))
   })
-  
-  output$Team_Table <- renderTable({})
  
+
 }
 
 shinyApp(ui, server)
