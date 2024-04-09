@@ -62,8 +62,18 @@ mm24Qualified <- read_csv("mm24_TournamentTeams.csv")
 ## cleaning data 
 
 ```{r}
-mm24Qualified %>%
-  separate(Team, sep = ",", into = c("Team", "Tournament_Status"))
+mm24Qualified <- 
+  mm24Qualified %>%
+  select(-Rec) %>%
+  rename(Games_Played = G) %>%
+  mutate(Team = as.character(Team)) %>%
+  separate(Team, sep = ",", into = c("Team", "Tournament_Status")) %>%
+  separate(Team, sep = "(?<=\\D)(?=\\d)", # this means that there's a non digit that is followed by a digit, in this case space before the digit
+           into = c("Team", "PlayOff_Seed")) %>%
+  separate(PlayOff_Seed, sep = "\\D", into = c("PlayOff_Seed", "rand")) %>%
+  select(-rand) %>%
+  mutate(Conf = as.factor(Conf))
+mm24Qualified
 ```
 
 
