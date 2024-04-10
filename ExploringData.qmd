@@ -32,7 +32,7 @@ marchMadness <-
   .[-77,] %>%
   .[-102,] %>%
   .[-127,] %>%
-  .[-152,]
+  .[-152,] # these rows had variables in them, so removed them.
 
 marchMadness
 ```
@@ -47,7 +47,7 @@ mm24
 ```
 
 
-# Filtering For the tournament teams only
+# Dataset 1: For the shiny table
 
 ```{r}
 mm24Qualified <- mm24[str_detect(mm24$Team, pattern = "❌|✅"), ]
@@ -106,6 +106,59 @@ mm24Qualified
 
 "(?<=\\D)(?=\\d)", this means that there's a non digit that is followed by a digit, in this case space before the digit (utilized stringR cheatsheet)
 
+# Dataset 2: For shiny plot
+
+```{r}
+mmHist <- read_csv("mmHistorical.csv")
+# https://data.world/michaelaroy/ncaa-tournament-results
+```
+Here is a file containing every NCAA tournament game result since 1985 (when the tournament was expanded to the 64 team bracket). The dataset contains the year, round (1-6), seed of the teams (1-16), region (1-4) and the scores. 35 years of data, 1985-2019
+
+```{r}
+mmHist <- 
+  mmHist %>%
+  rename(`Seed 1` = Seed...5,
+         `Score 1` = Score...6,
+         `Team 1` = Team...7,
+         `Team 2` = Team...8,
+         `Score 2` = Score...9,
+         `Seed 2` = Seed...10) %>%
+  select(-`Region Number`) %>%
+  mutate(Round = as.factor(Round),
+         `Region Name` = as.factor(`Region Name`)) %>%
+  arrange(Year)
+mmHist
+```
+## playing around with dataset 2, for plot ideas
+
+```{r}
+mmHist %>%
+  group_by(Year) %>%
+  filter(Round == 6 & `Score 2` > `Score 1`) %>%
+  ggplot(aes(Year, `Score 2`, fill = `Team 2`))+
+  geom_point() +
+  theme_minimal()
+
+mmHist %>%
+  group_by(Year) %>%
+  filter(Round == 6 & `Score 1` > `Score 2`) %>%
+  ggplot(aes(Year, `Score 1`, fill = `Team 1`))+
+  geom_point() +
+  theme_minimal()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Final project
 
 ```{r}
@@ -114,7 +167,7 @@ library(shiny)
 library(reactable)
 
 ui <- navbarPage(
-  title = "March Madness 2024",
+  title = "March Madness Analysis",
   tabPanel("Statistics",
              radioButtons("stat_type", 
                  label = "Pick a Stat:",
@@ -124,70 +177,60 @@ ui <- navbarPage(
                    choices = mm24Qualified$Team, selected = "Connecicut",
                    multiple = TRUE),
   tableOutput("Team_Table")),
- tabPanel("Plots",
-          radioButtons("stat_type", 
-                 label = "Pick a Stat:",
-                 choices = c("Defensive and Opponent Stats", "Offensive Stats")),
-          radioButtons("num_vars", 
-                 label = "Choose number of variables to plot:",
-                 choices = c(1, 2)),
-          selectizeInput("x_var", label = "Choose an X-variable:",
-                   choices = colnames(mm24Qualified),
-                   multiple = FALSE),
-          selectizeInput("y_var", label = "Choose a Y-variable:",
-                   choices = colnames(mm24Qualified),
-                   multiple = TRUE),
-          plotlyOutput("Team_Plot"))
   
+ tabPanel("Plots",
+          selectInput("round_choice",
+                      label = "Choose a playoff round:",
+                      choices = c("1", "2", "3", "4", "5", "6"),
+                      selected = "1"),
+          sliderInput("year_range",
+                      label = "Choose a year range:",
+                      min = 1985, max = 2019,
+                      value = c(1985, 2019),sep = ""),
+          plotlyOutput("Team_Plot")
+          )
   )
     
-
 server <- function(input, output, session) {
   
-  
   mm24TableFiltered <- reactive({
-    
    if (input$stat_type == "Defensive and Opponent Stats"){
-     
      mm24TableFiltered <- 
        mm24Qualified %>% 
        filter(Team %in% input$Team_choice) %>%
-       select(Team, PlayOff_Seed, Conf, Games_Played, Barthag, AdjDE, `EFG%`, DRB, FTRD, `2P%D`, `3P%D`, `3PRD`, `Adj T.`, WAB)
-     
+       select(Team, PlayOff_Seed, Conf, Games_Played, Barthag, AdjDE, `EFG%`,
+              DRB, FTRD, `2P%D`, `3P%D`, `3PRD`, `Adj T.`, WAB) %>%
+       arrange(PlayOff_Seed)
    } else {
-     
      mm24TableFiltered <- 
        mm24Qualified %>% 
        filter(Team %in% input$Team_choice) %>%
-       select(Team, PlayOff_Seed, Conf, Games_Played, Barthag, AdjOE, `EFGD%`, ORB, FTR, `2P%`, `3P%`, `3PR`, `Adj T.`, WAB)
-     
+       select(Team, PlayOff_Seed, Conf, Games_Played, Barthag, AdjOE, `EFGD%`,
+              ORB, FTR, `2P%`, `3P%`, `3PR`, `Adj T.`, WAB) %>%
+       arrange(PlayOff_Seed)
    }
-    
   })
-  
    output$Team_Table <- renderTable({
      mm24TableFiltered()
    })
    
-   observeEvent(input$num_vars, {
-     if (input$num_vars == 1){
-       updateSelectInput(session = session,"y_var", label = "Choose a Y-variable:", choices = NULL)
-     } else {
-       updateSelectInput(session = session, "y_var", label = "Choose a Y-variable:", choices = colnames(mm24Qualified))
-     }
-   })
    
-   output$Team_plot <- renderPlotly({
-     plot_data <- mm24TableFiltered()
-     if (input$num_vars == 1){
-       plt <- ggplot(data = plot_data) +
-         geom_histogram(aes(x = .data[[input$x_var]], fill = Team, stat="identity"))
-     } else {
-       plt <- ggplot(plot_data) +
-         geom_point(aes(x = .data[[input$x_var]], y = .data[[input$y_var]], color = Team))
-     }
-     ggplotly(plt, tooltip = "text")
-   })
+    mmHistPlot <- reactive({
+      mmHist %>%
+        filter(Round == input$round_choice & Year >= input$year_range[1] & Year <= input$year_range[2])
+    })
+    
+    output$Team_Plot <- renderPlotly({
+      mmHistPlot() %>%
+        ggplot(aes(Year, `Score 1`, fill = `Team 1`))+
+        geom_point() +
+        theme_minimal()
+      mmHistPlot() %>%
+        ggplot(aes(Year, `Score 2`, fill = `Team 2`))+
+        geom_point() +
+        theme_minimal()
+    })
+  
    
   
 }
@@ -196,15 +239,8 @@ shinyApp(ui, server)
 ```
 
 
-plot_react <- reactive({
-    mm24Filtered <- mm24Qualified %>% filter(Team %in% input$Team_choice) %>% select(Team, input$var_choice)
-  })
 
-  output$Team_Plot <- renderPlot({
-    plt <- ggplot(data = plot_react()) +
-      geom_histogram(aes(x = .data[[input$var_choice]], fill = Team, stat="identity"))
-  })
- ggplotly(plt)
+
 
 
 
