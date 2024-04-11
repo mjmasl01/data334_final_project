@@ -176,8 +176,8 @@ ui <- navbarPage(
              selectizeInput("Team_choice", label = "Choose Team(s):",
                    choices = mm24Qualified$Team, selected = "Connecicut",
                    multiple = TRUE),
-  tableOutput("Team_Table")),
-  
+  tableOutput("Team_Table")
+  ),
  tabPanel("Plots",
           selectInput("round_choice",
                       label = "Choose a playoff round:",
@@ -186,8 +186,8 @@ ui <- navbarPage(
           sliderInput("year_range",
                       label = "Choose a year range:",
                       min = 1985, max = 2019,
-                      value = c(1985, 2019),sep = ""),
-          plotlyOutput("Team_Plot")
+                      value = c(1985, 2019), sep = ""),
+          plotlyOutput("Team_Plot", width = "100%", height = 600)
           )
   )
     
@@ -221,14 +221,19 @@ server <- function(input, output, session) {
     })
     
     output$Team_Plot <- renderPlotly({
-      mmHistPlot() %>%
-        ggplot(aes(Year, `Score 1`, fill = `Team 1`))+
+      plt <- mmHistPlot() %>%
+        mutate(winner_score = ifelse(`Score 1` > `Score 2`, `Score 1`, `Score 2`),
+               winning_team = ifelse(`Score 1` > `Score 2`, `Team 1`, `Team 2`),
+               losing_team = ifelse(`Score 1` > `Score 2`, `Team 2`, `Team 1`),
+               losing_score = ifelse(`Score 1` > `Score 2`, `Score 2`, `Score 1`)) %>%
+        ggplot(aes(Year, winner_score, fill = winning_team, label = losing_score, label2 = losing_team))+
         geom_point() +
-        theme_minimal()
-      mmHistPlot() %>%
-        ggplot(aes(Year, `Score 2`, fill = `Team 2`))+
-        geom_point() +
-        theme_minimal()
+        theme_minimal() +
+        labs(title = "NCAA Tournament Results",
+             x = "Year",
+             y = "Winning Score") +
+        scale_x_continuous(breaks = seq(input$year_range[1], input$year_range[2], 5))
+      ggplotly(plt, tooltip = c("x", "y", "fill", "label", "label2"))
     })
   
    
