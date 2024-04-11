@@ -164,7 +164,6 @@ mmHist %>%
 ```{r}
 library(plotly)
 library(shiny)
-library(reactable)
 
 ui <- navbarPage(
   title = "March Madness Analysis",
