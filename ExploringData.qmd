@@ -185,7 +185,8 @@ ui <- navbarPage(
           sliderInput("year_range",
                       label = "Choose a year range:",
                       min = 1985, max = 2019,
-                      value = c(1985, 2019), sep = ""),
+                      value = c(1985, 2019), 
+                      sep = ""),
           plotlyOutput("Team_Plot", width = "100%", height = 600)
           )
   )
@@ -228,6 +229,7 @@ server <- function(input, output, session) {
         ggplot(aes(Year, winner_score, fill = winning_team, label = losing_score, label2 = losing_team))+
         geom_point() +
         theme_minimal() +
+        scale_colour_viridis_c() +
         labs(title = "NCAA Tournament Results",
              x = "Year",
              y = "Winning Score") +
