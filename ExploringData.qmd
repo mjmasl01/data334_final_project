@@ -195,7 +195,7 @@ ui <- navbarPage(
                        min = 1985, max = 2019,
                        value = c(1985, 2019), 
                        sep = ""),
-           plotlyOutput("Team_Plot", width = "100%", height = 600)
+           plotlyOutput("history_plot", width = "100%", height = 600)
   )
 )
 
@@ -271,9 +271,7 @@ server <- function(input, output, session) {
     mm24TableFiltered()
   }, digits = 3, width = "100%", bordered = TRUE, striped = TRUE)
   
-  
   mmHistPlot <- reactive({
-    
     if (input$region_choice == "All"){
       mmHist <- mmHist %>%
         filter(Round == input$round_choice & Year >= input$year_range[1] & Year <= input$year_range[2])
@@ -284,7 +282,8 @@ server <- function(input, output, session) {
     }
   })
   
-  output$Team_Plot <- renderPlotly({
+  
+  output$history_plot <- renderPlotly({
     plt <- mmHistPlot() %>%
       mutate(winner_score = ifelse(`Score 1` > `Score 2`, `Score 1`, `Score 2`),
              winning_team = ifelse(`Score 1` > `Score 2`, `Team 1`, `Team 2`),
@@ -294,14 +293,12 @@ server <- function(input, output, session) {
       geom_point() +
       theme_minimal() +
       scale_colour_viridis_c() +
-      labs(title = "NCAA Tournament Results",
+      labs(title = paste("NCAA Historic Tournament Results for...", "\bRound:", input$round_choice, "&","**Region**:", input$region_choice),
            x = "Year",
            y = "Winning Score") +
       scale_x_continuous(breaks = seq(input$year_range[1], input$year_range[2], 5))
     ggplotly(plt, tooltip = c("x", "y", "fill", "label", "label2"))
   })
-  
-  
   
 }
 
