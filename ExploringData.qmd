@@ -174,7 +174,7 @@ ui <- navbarPage(
            radioButtons("stat_type", 
                         label = "Pick a Stat:",
                         choices = c("Defensive and Opponent Stats", "Offensive Stats"),
-                        selected = "Defensive and Opponent Stats"),
+                        selected = "Offensive Stats"),
            selectizeInput("Team_choice", label = "Choose Team(s):",
                           choices = mm24Qualified$Team,
                           multiple = TRUE),
@@ -221,35 +221,42 @@ server <- function(input, output, session) {
   
   output$Variable_Description <- renderPrint({
     if (input$stat_type == "Defensive and Opponent Stats"){
-      print("Team: Team name")
-      print("PlayOff_Seed: Playoff Seed")
-      print("Conf: Conference")
-      print("Games_Played: Number of games played")
-      print("Barthag: Power Rating")
-      print("AdjDE: Adjusted Defensive Efficiency")
-      print("`EFG%`: Effective Field Goal Percentage")
-      print("DRB: Defensive Rebound Percentage")
-      print("FTRD: Free Throw Rate Defense")
-      print("`2P%D`: Two-Point Defense")
-      print("`3P%D`: Three-Point Defense")
-      print("`3PRD`: Three-Point Rate Defense")
-      print("`Adj T.`: Adjusted Tempo")
-      print("WAB: Wins Above Bubble")
+      cat(" Defensive and Opponent Stats:\n",
+        "----------------------------------------------\n",
+        "Team:        | Team name\n",
+        "PlayOff_Seed:| Playoff Seed\n",
+        "Conf:        | Conference\n",
+        "Games_Played:| Number of games played\n",
+        "Barthag:     | Power Rating\n",
+        "AdjDE:       | Adjusted Defensive Efficiency\n",
+        "`EFG%`:      | Effective Field Goal Percentage\n",
+        "DRB:         | Defensive Rebound Percentage\n",
+        "FTRD:        | Free Throw Rate Defense\n",
+        "`2P%D`:      | Two-Point Defense\n",
+        "`3P%D`:      | Three-Point Defense\n",
+        "`3PRD`:      | Three-Point Rate Defense\n",
+        "`Adj T.`:    | Adjusted Tempo\n",
+        "WAB:         | Wins Above Bubble\n"
+      )
+      
     } else {
-      print("Team: Team name")
-      print("PlayOff_Seed: Playoff Seed")
-      print("Conf: Conference")
-      print("Games_Played: Number of games played")
-      print("Barthag: Power Rating")
-      print("AdjOE: Adjusted Offensive Efficiency")
-      print("`EFGD%`: Effective Field Goal Percentage Allowed")
-      print("ORB: Offensive Rebound Rate")
-      print("FTR: Free Throw Rate (Free Throws Attempted per Field Goal Attempted)")
-      print("`2P%`: Two-Point Field Goal Percentage")
-      print("`3P%`: Three-Point Field Goal Percentage")
-      print("`3PR`: Three-Point Attempt Rate (Three-Point Field Goal Attempts per Field Goal Attempts)")
-      print("`Adj T.`: Adjusted Tempo")
-      print("WAB: Wins Above Bubble")
+      cat("Offensive Stats:\n",
+        "----------------------------------------------\n",
+        "Team:        | Team name\n",
+        "PlayOff_Seed:| Playoff Seed\n",
+        "Conf:        | Conference\n",
+        "Games_Played:| Number of games played\n",
+        "Barthag:     | Power Rating\n",
+        "AdjOE:       | Adjusted Offensive Efficiency\n",
+        "`EFGD%`:     | Effective Field Goal Percentage Allowed\n",
+        "ORB:         | Offensive Rebound Rate\n",
+        "FTR:         | Free Throw Rate (Free Throws Attempted per Field Goal Attempted)\n",
+        "`2P%`:       | Two-Point Field Goal Percentage (Two-Point Field Goal Attempts per Field Goal Attempts)\n",
+        "`3P%`:       | Three-Point Field Goal Percentage (Three-Point Field Goal Attempts per Field Goal Attempts)\n",
+        "`3PR`:       | Three-Point Attempt Rate \n",
+        "`Adj T.`:    | Adjusted Tempo\n",
+        "WAB:         | Wins Above Bubble\n"
+      )
     }
   })
   
