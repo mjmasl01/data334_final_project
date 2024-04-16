@@ -201,6 +201,16 @@ ui <- navbarPage(
 
 server <- function(input, output, session) {
   
+  observeEvent(input$round_choice, {
+    
+    region_choices <- mmHist %>% filter(Round == input$round_choice) |>
+      distinct(`Region Name`) |> pull(`Region Name`)
+    
+    updateSelectInput(inputId = "region_choice",
+                      choices = region_choices)
+  })
+  
+  
   mm24TableFiltered <- reactive({
     if (input$stat_type == "Defensive and Opponent Stats"){
       mm24TableFiltered <- 
@@ -263,7 +273,6 @@ server <- function(input, output, session) {
   output$Team_Table <- renderTable({
     mm24TableFiltered()
   }, digits = 3, width = "100%", bordered = TRUE, striped = TRUE)
-  
   
   
   mmHistPlot <- reactive({
