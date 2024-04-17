@@ -293,7 +293,7 @@ server <- function(input, output, session) {
       geom_point() +
       theme_minimal() +
       scale_colour_viridis_c() +
-      labs(title = paste("NCAA Historic Tournament Results for...", "\bRound:", input$round_choice, "&","**Region**:", input$region_choice),
+      labs(title = paste("NCAA Historic Tournament Results for...", "Round:", input$round_choice, "&","**Region**:", input$region_choice),
            x = "Year",
            y = "Winning Score") +
       scale_x_continuous(breaks = seq(input$year_range[1], input$year_range[2], 5))
