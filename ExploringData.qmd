@@ -160,17 +160,24 @@ unique(mmHist$`Region Name`)
 ```
 
 
+```{r}
+bootswatch_themes()
+```
 
 
 # Final project
 
 ```{r}
+library(tidyverse)
 library(plotly)
 library(shiny)
+library(bslib)
 
 ui <- navbarPage(
   title = "March Madness Analysis",
+  fluid = TRUE, theme = bs_theme(preset = "yeti"),
   tabPanel("Statistics",
+           icon = icon("table"),
            radioButtons("stat_type", 
                         label = "Pick a Stat:",
                         choices = c("Defensive and Opponent Stats", "Offensive Stats"),
@@ -179,9 +186,10 @@ ui <- navbarPage(
                           choices = mm24Qualified$Team,
                           multiple = TRUE),
            verbatimTextOutput("Variable_Description"),
-           tableOutput("Team_Table")
+           dataTableOutput("Team_Table")
   ),
   tabPanel("Historical Plots",
+           icon = icon("chart-line"),
            selectInput("round_choice",
                        label = "Choose a playoff round:",
                        choices = c("1", "2", "3", "4", "5", "6"),
@@ -228,48 +236,48 @@ server <- function(input, output, session) {
   
   output$Variable_Description <- renderPrint({
     if (input$stat_type == "Defensive and Opponent Stats"){
-      cat(" Defensive and Opponent Stats:\n",
-        "----------------------------------------------\n",
+      cat(" Defensive and Opponent Stats: Variable Description\n",
+        "-------------------------------------------------------\n",
         "Team:        | Team name\n",
         "PlayOff_Seed:| Playoff Seed\n",
         "Conf:        | Conference\n",
         "Games_Played:| Number of games played\n",
-        "Barthag:     | Power Rating\n",
-        "AdjDE:       | Adjusted Defensive Efficiency\n",
-        "`EFG%`:      | Effective Field Goal Percentage\n",
-        "DRB:         | Defensive Rebound Percentage\n",
-        "FTRD:        | Free Throw Rate Defense\n",
-        "`2P%D`:      | Two-Point Defense\n",
-        "`3P%D`:      | Three-Point Defense\n",
-        "`3PRD`:      | Three-Point Rate Defense\n",
-        "`Adj T.`:    | Adjusted Tempo\n",
-        "WAB:         | Wins Above Bubble\n"
+        "Barthag:     | Power Rating (Chance of beating an average Division I team)\n",
+        "AdjDE:       | Adjusted Offensive Efficiency (An estimate of points allowed per 100 possessions had against an average D1 offense)\n",
+        "EFG%:        | Effective Field Goal percentage scored\n",
+        "DRB:         | Defensive Rebound percentage\n",
+        "FTRD:        | Free Throw Rate allowed\n",
+        "2P%D:        | Two-Point allowed\n",
+        "3P%D:        | Three-Point allowed\n",
+        "3PRD:        | Three-Point Rate allowed\n",
+        "Adj T.:      | Adjusted Tempo (estimate of tempo (possessions per 40 minutes) a team has against a team that plays at avg D1 tempo)\n",
+        "WAB:         | Wins Above Bubble (the cut off b/n making March Madness Tournament and or not\n"
       )
       
     } else {
-      cat("Offensive Stats:\n",
-        "----------------------------------------------\n",
+      cat("Offensive Stats: Variable Description\n",
+        "-------------------------------------------------------\n",
         "Team:        | Team name\n",
         "PlayOff_Seed:| Playoff Seed\n",
         "Conf:        | Conference\n",
         "Games_Played:| Number of games played\n",
-        "Barthag:     | Power Rating\n",
-        "AdjOE:       | Adjusted Offensive Efficiency\n",
-        "`EFGD%`:     | Effective Field Goal Percentage Allowed\n",
-        "ORB:         | Offensive Rebound Rate\n",
+        "Barthag:     | Power Rating (Chance of beating an average Division I team)\n",
+        "AdjOE:       | Adjusted Offensive Efficiency (An estimate of points scored per 100 possessions had against an average D1 defense)\n",
+        "EFGD%:       | Effective Field Goal Percentage Allowed\n",
+        "ORB:         | Offensive Rebound percentage\n",
         "FTR:         | Free Throw Rate (Free Throws Attempted per Field Goal Attempted)\n",
-        "`2P%`:       | Two-Point Field Goal Percentage (Two-Point Field Goal Attempts per Field Goal Attempts)\n",
-        "`3P%`:       | Three-Point Field Goal Percentage (Three-Point Field Goal Attempts per Field Goal Attempts)\n",
-        "`3PR`:       | Three-Point Attempt Rate \n",
-        "`Adj T.`:    | Adjusted Tempo\n",
-        "WAB:         | Wins Above Bubble\n"
+        "2P%:         | Two-Point Field Goal Percentage (Two-Point Field Goal Attempts per Field Goal Attempts)\n",
+        "3P%:         | Three-Point Field Goal Percentage (Three-Point Field Goal Attempts per Field Goal Attempts)\n",
+        "3PR:         | Three-Point Attempt Rate\n",
+        "Adj T.:      | Adjusted Tempo (estimate of tempo (possessions per 40 minutes) a team has against a team that plays at avg D1 tempo)\n",
+        "WAB:         | Wins Above Bubble (the cut off b/n making March Madness Tournament and or not\n"
       )
     }
   })
   
-  output$Team_Table <- renderTable({
+  output$Team_Table <- renderDataTable({
     mm24TableFiltered()
-  }, digits = 3, width = "100%", bordered = TRUE, striped = TRUE)
+  },options = list(searching = FALSE, paging = FALSE, info = FALSE, scrollX = TRUE))
   
   mmHistPlot <- reactive({
     if (input$region_choice == "All"){
@@ -282,7 +290,6 @@ server <- function(input, output, session) {
     }
   })
   
-  
   output$history_plot <- renderPlotly({
     plt <- mmHistPlot() %>%
       mutate(winner_score = ifelse(`Score 1` > `Score 2`, `Score 1`, `Score 2`),
@@ -293,9 +300,14 @@ server <- function(input, output, session) {
       geom_point() +
       theme_minimal() +
       scale_colour_viridis_c() +
-      labs(title = paste("NCAA Historic Tournament Results for...", "Round:", input$round_choice, "&","Region:", input$region_choice),
-           x = "Year",
-           y = "Winning Score") +
+      labs(title = if(input$year_range[1] == input$year_range[2]){
+        paste("For the year", input$year_range[1], ", The NCAA Historic Tournament Results:",  "Region:", input$region_choice, "& Round:", input$round_choice)
+      }else{
+        paste("For the years", input$year_range[1], "-", input$year_range[2], ", The NCAA Historic Tournament Results:",  "Region:", input$region_choice, "& Round:", input$round_choice)
+      },
+      x = "Year",
+      y = "Winning Score",
+      fill = "Winning Team") +
       scale_x_continuous(breaks = seq(input$year_range[1], input$year_range[2], 5))
     ggplotly(plt, tooltip = c("x", "y", "fill", "label", "label2"))
   })
