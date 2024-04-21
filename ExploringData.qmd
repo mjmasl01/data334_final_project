@@ -155,7 +155,6 @@ mmHist %>%
 library(tidyverse)
 library(plotly)
 library(shiny)
-library(bslib)
 
 ui <- navbarPage(
   title = "March Madness Analysis",
