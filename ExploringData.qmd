@@ -169,17 +169,20 @@ ui <- navbarPage(
            icon = icon("table"),
            tags$br(),
            tags$br(),
-           titlePanel(tags$h1("2024Tournament Results", style = "font-weight: bold; text-align: center; color: darkblue; font-size: 40px;")), 
+           titlePanel(tags$h1("2024 Tournament Results", style = "font-weight: bold; text-align: center; color: darkblue; font-size: 40px;")), 
            tags$p("Author: Matt Maslow", style = "font-size: 18px;  text-align: center; color: darkblue;"),
+           tags$hr(style = "border-top: 3px solid #ccc;"),
            fluidRow(
-             column(3, radioButtons("stat_type", 
+             column(3, offset = 3, radioButtons("stat_type", 
                                     label = "Pick a Stat:",
                                     choices = c("Defensive and Opponent Stats", "Offensive Stats"),
                                     selected = "Offensive Stats")),
-             column(3, selectizeInput("Team_choice", label = "Select a team or multiple:",
+             column(3, selectizeInput("Team_choice", label = "Select multiple teams:",
                                       choices = mm24Qualified$Team,
                                       multiple = TRUE))),
+           tags$hr(style = "border-top: 3px solid #ccc;"),
            verbatimTextOutput("Variable_Description"),
+           tags$hr(style = "border-top: 3px solid #ccc;"),
            dataTableOutput("Team_Table")
   ),
   tabPanel("Historical Plots",
@@ -189,6 +192,7 @@ ui <- navbarPage(
            titlePanel(tags$h1("Tournament Results from 1985 to 2019", style = "font-weight: bold; text-align: center; color: darkblue; font-size: 40px;")),
            tags$p("Author: Matt Maslow", style = "font-size: 18px;  text-align: center; color: darkblue;"),
            tags$br(),
+           tags$hr(style = "border-top: 3px solid #ccc;"),
            fluidRow(
              column(3, selectInput("round_choice",
                                    label = "Choose a playoff round:",
@@ -207,8 +211,11 @@ ui <- navbarPage(
                                    label = "Choose Varaible to plot on y-axis:",
                                    choices = c("winner_score", "losing_score", "scoreDiff"),
                                    selected = "winner_score") )),
-           tags$p("For the visualization, choose one of the playoff rounds from 1 to 6 (1 = first round, 2 = second round, 3 = Sweet 16, 4 = Elite 8, 5 = Final Four, and 6 = Championship). Depending on the selected round, the regions from which the teams hail will update to reflect the remaining teams in that particular round. While the plot may appear crowded, adjusting the years can provide a clearer view of the data range. Additionally, take advantage of the interactive features located in the top-right corner of the plot. Users can select 'Compare data on hover', which will simultaneously display all games, team names, and results.", style = "font-size: 14px; text-align: center; color: black;"),
+           tags$hr(style = "border-top: 3px solid #ccc;"),
+           tags$p("Select a playoff round from 1 to 6 (1 = first round, 2 = second round, 3 = Sweet 16, 4 = Elite 8, 5 = Final Four, 6 = Championship). The visualization updates based on the chosen round, showing teams' regions still in contention. Adjusting the years can enhance clarity. Utilize the interactive features in the top-right corner to compare game data on hover, displaying team names and results simultaneously.", style = "font-size: 14px; text-align: center; color: black;"),
+           tags$hr(style = "border-top: 3px solid #ccc;"),
            plotlyOutput("history_plot", width = "100%", height = 600),
+           tags$hr(style = "border-top: 3px solid #ccc;"),
            dataTableOutput("hist_table")
   )
 )
@@ -307,11 +314,11 @@ server <- function(input, output, session) {
         geom_point() +
         theme_minimal() +
         scale_colour_viridis_c() +
-        labs(
-          title = if(input$year_range[1] == input$year_range[2]){
-            paste("For the year", input$year_range[1], ", The NCAA Historic Tournament Results:",  "Region:", input$region_choice, "& Round:", input$round_choice)
+        labs(title = if(input$year_range[1] == input$year_range[2]){
+            paste("The", input$year_range[1], "NCAA Historic Tournament Results:\n \t\tRegion:", input$region_choice, "& Round:", input$round_choice)
           }else{
-            paste("For the years", input$year_range[1], "-", input$year_range[2], ", The NCAA Historic Tournament Results:",  "Region:", input$region_choice, "& Round:", input$round_choice)},
+            paste("The", input$year_range[1], "to", input$year_range[2], "NCAA Historic Tournament Results:\n \t\tRegion:", input$region_choice, "& Round:", input$round_choice)
+            },
           x = "Year",
           y = input$y_var_choice,
           fill = "Winning Team") +
@@ -327,11 +334,11 @@ server <- function(input, output, session) {
         geom_point() +
         theme_minimal() +
         scale_colour_viridis_c() +
-        labs(
-          title = if(input$year_range[1] == input$year_range[2]){
-            paste("For the year", input$year_range[1], ", The NCAA Historic Tournament Results:",  "Region:", input$region_choice, "& Round:", input$round_choice)
+        labs(title = if(input$year_range[1] == input$year_range[2]){
+            paste("The", input$year_range[1], "NCAA Historic Tournament Results:\n \t\tRegion:", input$region_choice, "& Round:", input$round_choice)
           }else{
-            paste("For the years", input$year_range[1], "-", input$year_range[2], ", The NCAA Historic Tournament Results:",  "Region:", input$region_choice, "& Round:", input$round_choice)},
+            paste("The", input$year_range[1], "to", input$year_range[2], "NCAA Historic Tournament Results:\n \t\tRegion:", input$region_choice, "& Round:", input$round_choice)
+            },
           x = "Year",
           y = input$y_var_choice,
           fill = "Losing Team") +
@@ -347,11 +354,11 @@ server <- function(input, output, session) {
         geom_point() +
         theme_minimal() +
         scale_colour_viridis_c() +
-        labs(
-          title = if(input$year_range[1] == input$year_range[2]){
-            paste("For the year", input$year_range[1], ", The NCAA Historic Tournament Results:",  "Region:", input$region_choice, "& Round:", input$round_choice)
+        labs(title = if(input$year_range[1] == input$year_range[2]){
+            paste("The", input$year_range[1], "NCAA Historic Tournament Results:\n \t\tRegion:", input$region_choice, "& Round:", input$round_choice)
           }else{
-            paste("For the years", input$year_range[1], "-", input$year_range[2], ", The NCAA Historic Tournament Results:",  "Region:", input$region_choice, "& Round:", input$round_choice)},
+            paste("The", input$year_range[1], "to", input$year_range[2], "NCAA Historic Tournament Results:\n \t\tRegion:", input$region_choice, "& Round:", input$round_choice)
+            },
           x = "Year",
           y = "Diff in Losing versus winning scores",
           fill = "Winning Team") +
@@ -363,7 +370,6 @@ server <- function(input, output, session) {
     }
     
   })
-  
 
   output$hist_table <- renderDataTable({
     mmHistPlot() %>% 
