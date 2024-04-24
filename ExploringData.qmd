@@ -173,11 +173,11 @@ ui <- navbarPage(
            tags$p("Author: Matt Maslow", style = "font-size: 18px;  text-align: center; color: darkblue;"),
            tags$hr(style = "border-top: 3px solid #ccc;"),
            fluidRow(
-             column(3, offset = 3, radioButtons("stat_type", 
+             column(4, offset = 3, radioButtons("stat_type", 
                                     label = "Pick a Stat:",
                                     choices = c("Defensive and Opponent Stats", "Offensive Stats"),
                                     selected = "Offensive Stats")),
-             column(3, selectizeInput("Team_choice", label = "Select multiple teams:",
+             column(4, selectizeInput("Team_choice", label = "Select multiple teams:",
                                       choices = mm24Qualified$Team,
                                       multiple = TRUE))),
            tags$hr(style = "border-top: 3px solid #ccc;"),
@@ -237,14 +237,14 @@ server <- function(input, output, session) {
         mm24Qualified %>% 
         filter(Team %in% input$Team_choice) %>%
         select(Team, PlayOff_Seed, Conf, Games_Played, Barthag, AdjDE, `EFG%`,
-               DRB, FTRD, `2P%D`, `3P%D`, `3PRD`, `Adj T.`, WAB) %>%
+               DRB, FTRD, `2P%D`, `3P%D`, `Adj T.`, WAB) %>%
         arrange(PlayOff_Seed)
     } else {
       mm24TableFiltered <- 
         mm24Qualified %>% 
         filter(Team %in% input$Team_choice) %>%
         select(Team, PlayOff_Seed, Conf, Games_Played, Barthag, AdjOE, `EFGD%`,
-               ORB, FTR, `2P%`, `3P%`, `3PR`, `Adj T.`, WAB) %>%
+               ORB, FTR, `2P%`, `3P%`, `Adj T.`, WAB) %>%
         arrange(PlayOff_Seed)
     }
   })
@@ -264,7 +264,6 @@ server <- function(input, output, session) {
           "FTRD:        | Free Throw Rate allowed\n",
           "2P%D:        | Two-Point allowed\n",
           "3P%D:        | Three-Point allowed\n",
-          "3PRD:        | Three-Point Rate allowed\n",
           "Adj T.:      | Adjusted Tempo (estimate of tempo (possessions per 40 minutes) a team has against a team that plays at avg D1 tempo)\n",
           "WAB:         | Wins Above Bubble (the cut off b/n making March Madness Tournament and or not\n"
       )
@@ -276,13 +275,12 @@ server <- function(input, output, session) {
           "Conf:        | Conference\n",
           "Games_Played:| Number of games played\n",
           "Barthag:     | Power Rating (Chance of beating an average Division I team)\n",
-          "AdjOE:       | Adjusted Offensive Efficiency (An estimate of points scored per 100 possessions had against an average D1 defense)\n",
+          "AdjOE:       | Adjusted Offensive Efficiency (An estimate of points scored per 100 possessions has against an average D1 defense)\n",
           "EFGD%:       | Effective Field Goal Percentage Allowed\n",
           "ORB:         | Offensive Rebound percentage\n",
           "FTR:         | Free Throw Rate (Free Throws Attempted per Field Goal Attempted)\n",
           "2P%:         | Two-Point Field Goal Percentage (Two-Point Field Goal Attempts per Field Goal Attempts)\n",
           "3P%:         | Three-Point Field Goal Percentage (Three-Point Field Goal Attempts per Field Goal Attempts)\n",
-          "3PR:         | Three-Point Attempt Rate\n",
           "Adj T.:      | Adjusted Tempo (estimate of tempo (possessions per 40 minutes) a team has against a team that plays at avg D1 tempo)\n",
           "WAB:         | Wins Above Bubble (the cut off b/n making March Madness Tournament and or not\n"
       )
