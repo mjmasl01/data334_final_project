@@ -59,8 +59,6 @@ mm24Qualified <- mm24[str_detect(mm24$Team, pattern = "❌|✅"), ]
 mm24Qualified <- read_csv("mm24_TournamentTeams.csv")
 ```
 
-*Used chat to help me clarify what some of the columns names meant*
-
 1. **Conf**: Conference - This variable indicates the conference to which a team belongs.
 2. **Games_Played**: The number of games played by the team in the season.
 3. **AdjOE**: Adjusted Offensive Efficiency - A metric that measures a team's offensive efficiency while accounting for the strength of the opponent.
