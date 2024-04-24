@@ -193,7 +193,7 @@ ui <- navbarPage(
              column(3, sliderInput("year_range",
                                    label = "Choose a year range:",
                                    min = 1985, max = 2019,
-                                   value = c(1985, 2019), 
+                                   value = c(1995, 2009), 
                                    sep = "") ),
              column(3, selectInput("y_var_choice",
                                    label = "Choose Varaible to plot on y-axis:",
