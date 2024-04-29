@@ -4,16 +4,20 @@ author: "Matt Maslow"
 format: html
 ---
 
+
 # Reading and Tidying the data
+
 
 ```{r}
 library(tidyverse)
 library(rvest)
 ```
 
+
 ## Playing with March Madness data from 2024 tournament
 
 ### Webscraping the data & Cleaning
+
 
 ```{r}
 url <- "https://www.barttorvik.com/#"
@@ -36,6 +40,7 @@ marchMadness <-
 
 marchMadness
 ```
+
 ```{r}
 #write_csv(marchMadness, file = "MarchMadness24.csv")
 ```
@@ -47,7 +52,9 @@ mm24
 ```
 
 
+
 # Dataset 1: For the shiny table
+
 
 ```{r}
 mm24Qualified <- mm24[str_detect(mm24$Team, pattern = "❌|✅"), ]
@@ -58,6 +65,7 @@ mm24Qualified <- mm24[str_detect(mm24$Team, pattern = "❌|✅"), ]
 
 mm24Qualified <- read_csv("mm24_TournamentTeams.csv")
 ```
+
 
 1. **Conf**: Conference - This variable indicates the conference to which a team belongs.
 2. **Games_Played**: The number of games played by the team in the season.
@@ -86,6 +94,7 @@ mm24Qualified <- read_csv("mm24_TournamentTeams.csv")
 
 ## cleaning data 
 
+
 ```{r}
 mm24Qualified <- 
   mm24Qualified %>%
@@ -102,15 +111,19 @@ mm24Qualified <-
 mm24Qualified
 ```
 
+
 "(?<=\\D)(?=\\d)", this means that there's a non digit that is followed by a digit, in this case space before the digit (utilized stringR cheatsheet)
 
 # Dataset 2: For shiny plot
+
 
 ```{r}
 mmHist <- read_csv("mmHistorical.csv")
 # https://data.world/michaelaroy/ncaa-tournament-results
 ```
+
 Here is a file containing every NCAA tournament game result since 1985 (when the tournament was expanded to the 64 team bracket). The dataset contains the year, round (1-6), seed of the teams (1-16), region (1-4) and the scores. 35 years of data, 1985-2019
+
 
 ```{r}
 mmHist <- 
@@ -135,7 +148,9 @@ mmHist
 
 
 
+
 # Final project
+
 
 ```{r}
 library(tidyverse)
@@ -144,7 +159,7 @@ library(shiny)
 library(bslib)
 
 ui <- navbarPage(
-  title = "🏀 March Madness Analysis",
+  title = "🏀 March Madness 🏀",
   fluid = TRUE, theme = bs_theme(preset = "yeti"), position = "fixed-top",
   tabPanel("Statistics",
            icon = icon("table"),
@@ -360,23 +375,4 @@ server <- function(input, output, session) {
 
 shinyApp(ui, server)
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

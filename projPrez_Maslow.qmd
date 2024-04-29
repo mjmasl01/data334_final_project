@@ -1,5 +1,5 @@
 ---
-title: "🏀 March_Madness 🏀"
+title: "🏀 March Madness 🏀"
 format: revealjs
 ---
 
@@ -59,15 +59,18 @@ mmHist <-
 
 ## Data
 
-### March Madness 2024 Qualified Teams
+*March Madness 2024 Qualified Teams*
 
  - There are 64 teams that qualified for the 2024 March Madness tournament. 
+ 
  - Data consist of 24 variables, half offensive stats and half defensive stats. 
- - Will be using this data to analyze why some teams are stronger and were more likely of having greater success in the tournament.
-
-### Historical Data
+ 
+  - Will be using this data to analyze why some teams are stronger and were more likely of having greater success in the tournament.
+  
+*Historical Data*
 
  - This data contains historical data from years 1985 to 2019, with all six rounds of the playoffs including team names and scores. 
+ 
  -Will be using this data to analyze the winning scores and score differences in the final round of the playoffs, and to see if there were any record breaking scores.
 
 
