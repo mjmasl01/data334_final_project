@@ -132,23 +132,6 @@ mmHist <-
   arrange(Year)
 mmHist
 ```
-## playing around with dataset 2, for plot ideas
-
-```{r}
-mmHist %>%
-  group_by(Year) %>%
-  filter(Round == 6 & `Score 2` > `Score 1`) %>%
-  ggplot(aes(Year, `Score 2`, fill = `Team 2`))+
-  geom_point() +
-  theme_minimal()
-
-mmHist %>%
-  group_by(Year) %>%
-  filter(Round == 6 & `Score 1` > `Score 2`) %>%
-  ggplot(aes(Year, `Score 1`, fill = `Team 1`))+
-  geom_point() +
-  theme_minimal()
-```
 
 
 
@@ -230,7 +213,7 @@ server <- function(input, output, session) {
   })
   
   mm24TableFiltered <- reactive({
-    if (input$stat_type == "Defensive and Opponent Stats"){
+    if (input$stat_type == "Defensive and Oppsonent Stats"){
       mm24TableFiltered <- 
         mm24Qualified %>% 
         filter(Team %in% input$Team_choice) %>%

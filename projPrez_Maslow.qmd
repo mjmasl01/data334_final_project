@@ -1,0 +1,122 @@
+---
+title: "🏀 March_Madness 🏀"
+format: revealjs
+---
+
+
+```{r}
+#| echo: false
+#| output: false
+#| warning: false
+```
+
+
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(gridExtra)
+library(plotly)
+
+mm24Qualified <- read_csv("mm24_TournamentTeams.csv")
+mmHist <- read_csv("mmHistorical.csv")
+```
+
+```{r}
+mm24Qualified <- 
+  mm24Qualified %>%
+  select(-Rec) %>%
+  rename(Games_Played = G) %>%
+  mutate(Team = as.character(Team)) %>%
+  separate(Team, sep = ",", into = c("Team", "Tournament_Status")) %>%
+  separate(Team, sep = "(?<=\\D)(?=\\d)",
+           into = c("Team", "PlayOff_Seed")) %>%
+  separate(PlayOff_Seed, sep = "\\D", into = c("PlayOff_Seed", "rand")) %>%
+  select(-rand, -Tournament_Status) %>%
+  mutate(Conf = as.factor(Conf),
+         PlayOff_Seed = as.integer(PlayOff_Seed))
+
+mmHist <- 
+  mmHist %>%
+  rename(`Seed 1` = Seed...5,
+         `Score 1` = Score...6,
+         `Team 1` = Team...7,
+         `Team 2` = Team...8,
+         `Score 2` = Score...9,
+         `Seed 2` = Seed...10) %>%
+  select(-`Region Number`) %>%
+  mutate(Round = as.factor(Round),
+         `Region Name` = as.factor(`Region Name`)) %>%
+  mutate(winner_score = ifelse(`Score 1` > `Score 2`, `Score 1`, `Score 2`),
+             winning_team = ifelse(`Score 1` > `Score 2`, `Team 1`, `Team 2`),
+             losing_team = ifelse(`Score 1` > `Score 2`, `Team 2`, `Team 1`),
+             losing_score = ifelse(`Score 1` > `Score 2`, `Score 2`, `Score 1`),
+             scoreDiff = (winner_score-losing_score)) %>%
+  arrange(Year)
+```
+
+
+
+## Data
+
+### March Madness 2024 Qualified Teams
+
+ - There are 64 teams that qualified for the 2024 March Madness tournament. 
+ - Data consist of 24 variables, half offensive stats and half defensive stats. 
+ - Will be using this data to analyze why some teams are stronger and were more likely of having greater success in the tournament.
+
+### Historical Data
+
+ - This data contains historical data from years 1985 to 2019, with all six rounds of the playoffs including team names and scores. 
+ -Will be using this data to analyze the winning scores and score differences in the final round of the playoffs, and to see if there were any record breaking scores.
+
+
+## Vizualization 1 (Table)
+
+```{r}
+mm24Qualified %>% 
+  filter(Games_Played >= 37) %>%
+        select(Team, PlayOff_Seed, Conf, Games_Played, Barthag, AdjOE, `EFGD%`,
+               ORB, FTR, `2P%`, `3P%`, `Adj T.`, WAB) %>%
+        arrange(PlayOff_Seed) %>%
+        kable(sortable = TRUE, bordered = TRUE, highlight = TRUE, width = "100%")
+```
+
+
+## Vizualization 2 (Plot)
+
+When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+```{r}
+plt1 <- mmHist %>%
+  filter(Year >= 1990 & Year <= 2000 & Round == "6") %>%
+  ggplot(aes(Year, winner_score, fill = winning_team, label = losing_score, label2 = losing_team)) +
+  geom_point() +
+  theme_minimal() +
+  scale_colour_viridis_c() +
+  labs(x = "Year",
+  y = "Winning Score",
+  fill = "Winning Team") +
+  scale_x_continuous(breaks = seq(1990, 2000, 5)) +
+  theme(legend.position = "none") +
+  theme(plot.title = element_text(face = "bold", size = 14))
+plt1 <- ggplotly(plt1, tooltip = c("x", "y", "fill", "label", "label2"))
+
+plt3 <- mmHist %>%
+  filter(Year >= 1990 & Year <= 2000 & Round == "6") %>%
+  ggplot(aes(Year, scoreDiff, fill = winning_team, label = winner_score, label2 = losing_team, label3 = losing_score))+
+  geom_point() +
+  theme_minimal() +
+  scale_colour_viridis_c() +
+  labs(title = "Winning Score(Top) & Score Difference(Bottom)
+       in Final Round",
+  x = "Year",
+  y = "Score Difference",
+  fill = "Winning Team") +
+  scale_x_continuous(breaks = seq(1990, 2000, 5)) +
+  theme(legend.position = "none") +
+  theme(plot.title = element_text(face = "bold", size = 14))
+plt3 <- ggplotly(plt3, tooltip = c("x", "y", "fill", "label", "label2", "label3"))
+subplot(plt1, plt3, nrows = 2)
+```
+
+
