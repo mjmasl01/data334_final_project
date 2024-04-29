@@ -1,0 +1,12 @@
+name: Data343_March_Madness_Analysis
+title: Data343_March_Madness_Analysis
+username: mjmasl01
+account: mjmasl01
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11894869
+bundleId: 8556406
+url: https://mjmasl01.shinyapps.io/Data343_March_Madness_Analysis/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
