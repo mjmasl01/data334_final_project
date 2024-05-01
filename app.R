@@ -111,7 +111,7 @@ server <- function(input, output, session) {
   })
   
   mm24TableFiltered <- reactive({
-    if (input$stat_type == "Defensive and Oppsonent Stats"){
+    if (input$stat_type == "Defensive and Opponent Stats"){
       mm24TableFiltered <- 
         mm24Qualified %>% 
         filter(Team %in% input$Team_choice) %>%
