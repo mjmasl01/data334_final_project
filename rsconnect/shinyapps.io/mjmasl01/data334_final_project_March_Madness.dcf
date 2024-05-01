@@ -1,0 +1,12 @@
+name: data334_final_project_March_Madness
+title: data334_final_project_March_Madness
+username: mjmasl01
+account: mjmasl01
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11912824
+bundleId: 8564908
+url: https://mjmasl01.shinyapps.io/data334_final_project_March_Madness/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
