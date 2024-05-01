@@ -59,7 +59,7 @@ mmHist <-
 
 ## Data
 
-*March Madness 2024 Qualified Teams*
+March Madness 2024 Qualified Teams
 
  - There are 64 teams that qualified for the 2024 March Madness tournament. 
  
@@ -67,7 +67,7 @@ mmHist <-
  
   - Will be using this data to analyze why some teams are stronger and were more likely of having greater success in the tournament.
   
-*Historical Data*
+Historical Data
 
  - This data contains historical data from years 1985 to 2019, with all six rounds of the playoffs including team names and scores. 
  

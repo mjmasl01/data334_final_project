@@ -115,14 +115,14 @@ server <- function(input, output, session) {
       mm24TableFiltered <- 
         mm24Qualified %>% 
         filter(Team %in% input$Team_choice) %>%
-        select(Team, PlayOff_Seed, Conf, Games_Played, Barthag, AdjDE, `EFG%`,
+        select(Team, PlayOff_Seed, Conf, Games_Played, Barthag, AdjDE, `EFGD%`,
                DRB, FTRD, `2P%D`, `3P%D`, `Adj T.`, WAB) %>%
         arrange(PlayOff_Seed)
     } else {
       mm24TableFiltered <- 
         mm24Qualified %>% 
         filter(Team %in% input$Team_choice) %>%
-        select(Team, PlayOff_Seed, Conf, Games_Played, Barthag, AdjOE, `EFGD%`,
+        select(Team, PlayOff_Seed, Conf, Games_Played, Barthag, AdjOE, `EFG%`,
                ORB, FTR, `2P%`, `3P%`, `Adj T.`, WAB) %>%
         arrange(PlayOff_Seed)
     }
