@@ -237,7 +237,7 @@ server <- function(input, output, session) {
           paste("The", input$year_range[1], "to", input$year_range[2], "NCAA Historic Tournament Results:\n \t\tRegion:", input$region_choice, "& Round:", input$round_choice)
         },
         x = "Year",
-        y = "Diff in Losing versus winning scores",
+        y = "Diff in Winning versus Losing scores",
         fill = "Winning Team") +
         scale_x_continuous(breaks = seq(input$year_range[1], input$year_range[2], 5)) +
         theme(legend.position = "none") +
